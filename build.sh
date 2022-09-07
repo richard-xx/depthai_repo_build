@@ -42,6 +42,7 @@ depthai_core() {
 
     printf "${GREEN}Create debian files ...${NC}\n"
     bloom-generate rosdebian -i "${debian_inc}"
+    sed -i -e "s/(${version}-${debian_inc}${codename})/(${version}-${debian_inc}${codename}~${datetime})/g" debian/changelog
     cp /workdir/postinst_depthai_core debian/postinst
     
     if [ "$(dpkg --print-architecture)" = "amd64" ] && [ "${codename}" != "buster" ]; then
@@ -85,6 +86,7 @@ foxglove_msgs() {
 
     printf "${GREEN}Create debian files ...${NC}\n"
     bloom-generate rosdebian -i ${debian_inc}
+    sed -i -e "s/(${version}-${debian_inc}${codename})/(${version}-${debian_inc}${codename}~${datetime})/g" debian/changelog
 
     if [ "$(dpkg --print-architecture)" = "amd64" ] && [ "${codename}" != "buster" ]; then
         printf "${GREEN}Build %s source package ...${NC}\n" "${ros_pkg_name}"
@@ -130,6 +132,7 @@ buildpackage() {
 
     printf "${GREEN}Create debian files ...${NC}\n"
     bloom-generate rosdebian -i "${debian_inc}"
+    sed -i -e "s/(${version}-${debian_inc}${codename})/(${version}-${debian_inc}${codename}~${datetime})/g" debian/changelog
 
     if [ "$(dpkg --print-architecture)" = "amd64" ] && [ "${codename}" != "buster" ]; then
         printf "${GREEN}Build %s source package ...${NC}\n" "${ros_pkg_name}"
