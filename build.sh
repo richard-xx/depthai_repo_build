@@ -9,12 +9,14 @@ debian_inc="3"
 
 codename=$(lsb_release -c -s)
 sudo mkdir -p /workdir/artifacts/"${codename}"/
-function depthai_core() {
+
+depthai_core() {
     dir_name="depthai-core"
     pkg_name="depthai"
-
+    
     printf "${GREEN}Clone %s ...${NC}\n" "${dir_name}"
-    git clone --recursive https://github.com/luxonis/depthai-core.git --depth 1 -b ros-release
+    cd /tmp || exit
+    git clone --recursive https://github.com/luxonis/depthai-core.git --depth 1 -b ros-release 
 
     cd depthai-core || exit
 
@@ -61,11 +63,12 @@ function depthai_core() {
     sudo cp -u ../ros-"${ROS_DISTRO}"-* /workdir/artifacts/"${codename}"
 }
 
-function foxglove_msgs() {
+foxglove_msgs() {
     dir_name="ros_foxglove_msgs"
     pkg_name="foxglove-msgs"
 
     printf "${GREEN}Clone %s ...${NC}\n" "${dir_name}"
+    cd /tmp || exit
     git clone --recursive https://github.com/foxglove/schemas.git --depth 1 -b main
     cd schemas/"${dir_name}" || exit
     
@@ -98,7 +101,7 @@ function foxglove_msgs() {
     sudo cp -u ../ros-"${ROS_DISTRO}"-* /workdir/artifacts/"${codename}"
 }
 
-function buildpackage() {
+buildpackage() {
     dir_name="$1"
     if [ -z "$2" ]; then
         pkg_name="$1"
@@ -106,6 +109,7 @@ function buildpackage() {
         pkg_name="$2"
     fi
 
+    cd /tmp || exit
     if [ ! -f "depthai-ros" ]; then
         git clone --recursive https://github.com/luxonis/depthai-ros.git --depth 1 -b ros-release
     fi
@@ -140,9 +144,9 @@ function buildpackage() {
 
 }
 
-function copy_artifacts() {
+copy_artifacts() {
     sudo mkdir -p /workdir/artifacts/"${codename}"/
-    sudo cp -u /workdir/depthai-ros/ros-"${ROS_DISTRO}"-* /workdir/artifacts/"${codename}"
+    sudo cp -u /tmp/depthai-ros/ros-"${ROS_DISTRO}"-* /workdir/artifacts/"${codename}"
 
 }
 
