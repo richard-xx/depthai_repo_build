@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Build Depthai-ros Debs
+name: Build Depthai-ros Armv7 Debs
 
 # Controls when the workflow will run
 on:
@@ -15,22 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        platform: [linux/amd64, linux/arm64/v8]
+        platform: [linux/arm64/v7]
         image:
-          - noetic_depthai_buster
-          - humble_depthai_jammy
-          - galactic_depthai_focal
-          - foxy_depthai_focal
           - kinetic_depthai_xenial
           - melodic_depthai_bionic
           - noetic_depthai_focal
-        include:
-          - platform: linux/arm/v7
-            image: kinetic_depthai_xenial
-          - platform: linux/arm/v7
-            image: melodic_depthai_bionic
-          - platform: linux/arm/v7
-            image: noetic_depthai_focal
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -39,7 +28,7 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
-      - name: Dpkg-buildpackages
+      - name: Build Debs
         uses: addnab/docker-run-action@v3
         with:
           image: richardarducam/ros:${{ matrix.image }}

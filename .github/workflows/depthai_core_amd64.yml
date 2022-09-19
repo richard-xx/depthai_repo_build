@@ -1,0 +1,55 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Build Depthai-core Amd64 Debs
+
+# Controls when the workflow will run
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [linux/amd64]
+        image:
+          - noetic_depthai_buster
+          - humble_depthai_jammy
+          - galactic_depthai_focal
+          - foxy_depthai_focal
+          - kinetic_depthai_xenial
+          - melodic_depthai_bionic
+          - noetic_depthai_focal
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Build Debs
+        uses: addnab/docker-run-action@v3
+        with:
+          image: richardarducam/ros:${{ matrix.image }}
+          shell: bash
+          options: -v ${{ github.workspace }}:/workdir --platform ${{ matrix.platform }} -e DEBIAN_FRONTEND=noninteractive
+          run: |
+            if [ $(lsb_release -c -s) != "buster" ]; then 
+            sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv B43AA98A456BA62E7D0FC2570FFB30A4102243D5 \
+            && echo "deb http://ppa.launchpadcontent.net/richard-deng/cmake/ubuntu $(lsb_release -c -s) main" | sudo tee /etc/apt/sources.list.d/richard-deng-ubuntu-cmake.list
+            fi
+            mkdir -p /home/ubuntu/.hunter
+            sudo apt update
+            sudo apt install -y udev
+            sudo apt upgrade -y
+            bash build.sh -c
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: depthai-core
+          path: artifacts/*
