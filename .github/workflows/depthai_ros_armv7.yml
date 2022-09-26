@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        platform: [linux/arm64/v7]
+        platform: [linux/arm/v7]
         image:
           - kinetic_depthai_xenial
           - melodic_depthai_bionic
