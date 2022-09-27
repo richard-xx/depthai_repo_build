@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Build Depthai-ros Arm64 Debs
+name: Build Depthai ROS Amd64 Debs
 
 # Controls when the workflow will run
 on:
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        platform: [linux/arm64/v8]
+        platform: [linux/amd64]
         image:
           - noetic_depthai_buster
           - humble_depthai_jammy
@@ -48,13 +48,13 @@ jobs:
             curl -fsSL https://richard-xx.github.io/ros-depthai-repo/PUBLIC.KEY | gpg --dearmor | sudo tee /usr/local/share/keyrings/ros-depthai-repo.gpg > /dev/null
             echo "deb [signed-by=/usr/local/share/keyrings/ros-depthai-repo.gpg] https://richard-xx.github.io/ros-depthai-repo $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros-depthai-repo.list
             sudo apt update
-            sudo apt install -y udev 
-            sudo apt install -y ros-${ROS_DISTRO}-depthai ros-${ROS_DISTRO}-foxglove-msgs
-            sudo apt install -y ros-${ROS_DISTRO}-depthai-ros
+            sudo apt install -y udev ros-${ROS_DISTRO}-foxglove-msgs
             sudo apt upgrade -y
+            bash build.sh -c
             bash build.sh -r
+
 
       - uses: actions/upload-artifact@v3
         with:
-          name: depthai-ros
+          name: depthai-core
           path: artifacts/*
