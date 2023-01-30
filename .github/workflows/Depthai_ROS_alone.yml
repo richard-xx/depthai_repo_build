@@ -1,16 +1,37 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Build Depthai ros Debs
+name: Build Depthai Debs
 
 # Controls when the workflow will run
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      package:
+        type: choice
+        description: Which package to build
+        default: all
+        options: 
+        - all
+        - depthai
+        - depthai-ros
+        - foxglove-msgs
+      arch:
+        type: choice
+        description: Which platform to build
+        default: all
+        options: 
+        - all
+        - arm64
+        - arm32
+        - amd64
+
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
   build-amd64:
+    if: ${{ github.event.inputs.arch }} == 'all' or ${{ github.event.inputs.arch }} == 'amd64'
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     strategy:
@@ -35,7 +56,7 @@ jobs:
         with:
           image: richardarducam/ros:${{ matrix.image }}
           shell: bash
-          options: -v ${{ github.workspace }}:/workdir --platform ${{ matrix.platform }} -e DEBIAN_FRONTEND=noninteractive
+          options: -v ${{ github.workspace }}:/workdir --platform ${{ matrix.platform }} -e DEBIAN_FRONTEND=noninteractive -e PACKAGE=${{ github.event.inputs.package }}
           run: |
             if [ $(lsb_release -c -s) != "buster" ]; then 
             sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv B43AA98A456BA62E7D0FC2570FFB30A4102243D5 \
@@ -47,17 +68,16 @@ jobs:
             echo "deb [signed-by=/usr/local/share/keyrings/ros-depthai-repo.gpg] https://richard-xx.github.io/ros-depthai-repo $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros-depthai-repo.list
             sudo apt update
             sudo apt install -y udev 
-            sudo apt install -y ros-${ROS_DISTRO}-depthai ros-${ROS_DISTRO}-foxglove-msgs
-            sudo apt install -y ros-${ROS_DISTRO}-depthai-ros
             sudo apt upgrade -y
-            bash build.sh -r
+            bash build.sh
       - uses: actions/upload-artifact@v3
         with:
-          name: depthai-ros
+          name: ${{ github.event.inputs.package }}
           path: artifacts/*
           
   # This workflow contains a single job called "build"
   build-arm64:
+    if: ${{ github.event.inputs.arch }} == 'all' or ${{ github.event.inputs.arch }} == 'arm64'
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     strategy:
@@ -84,7 +104,7 @@ jobs:
         with:
           image: richardarducam/ros:${{ matrix.image }}
           shell: bash
-          options: -v ${{ github.workspace }}:/workdir --platform ${{ matrix.platform }} -e DEBIAN_FRONTEND=noninteractive
+          options: -v ${{ github.workspace }}:/workdir --platform ${{ matrix.platform }} -e DEBIAN_FRONTEND=noninteractive -e PACKAGE=${{ github.event.inputs.package }}
           run: |
             if [ $(lsb_release -c -s) != "buster" ]; then 
             sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv B43AA98A456BA62E7D0FC2570FFB30A4102243D5 \
@@ -96,17 +116,16 @@ jobs:
             echo "deb [signed-by=/usr/local/share/keyrings/ros-depthai-repo.gpg] https://richard-xx.github.io/ros-depthai-repo $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros-depthai-repo.list
             sudo apt update
             sudo apt install -y udev 
-            sudo apt install -y ros-${ROS_DISTRO}-depthai ros-${ROS_DISTRO}-foxglove-msgs
-            sudo apt install -y ros-${ROS_DISTRO}-depthai-ros
             sudo apt upgrade -y
-            bash build.sh -r
+            bash build.sh
       - uses: actions/upload-artifact@v3
         with:
-          name: depthai-ros
+          name: ${{ github.event.inputs.package }}
           path: artifacts/*
           
   # This workflow contains a single job called "build"
   build-arm32:
+    if: ${{ github.event.inputs.arch }} == 'all' or ${{ github.event.inputs.arch }} == 'arm32'
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     strategy:
@@ -129,7 +148,7 @@ jobs:
         with:
           image: richardarducam/ros:${{ matrix.image }}
           shell: bash
-          options: -v ${{ github.workspace }}:/workdir --platform ${{ matrix.platform }} -e DEBIAN_FRONTEND=noninteractive
+          options: -v ${{ github.workspace }}:/workdir --platform ${{ matrix.platform }} -e DEBIAN_FRONTEND=noninteractive -e PACKAGE=${{ github.event.inputs.package }}
           run: |
             if [ $(lsb_release -c -s) != "buster" ]; then 
             sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv B43AA98A456BA62E7D0FC2570FFB30A4102243D5 \
@@ -141,11 +160,9 @@ jobs:
             echo "deb [signed-by=/usr/local/share/keyrings/ros-depthai-repo.gpg] https://richard-xx.github.io/ros-depthai-repo $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros-depthai-repo.list
             sudo apt update
             sudo apt install -y udev 
-            sudo apt install -y ros-${ROS_DISTRO}-depthai ros-${ROS_DISTRO}-foxglove-msgs
-            sudo apt install -y ros-${ROS_DISTRO}-depthai-ros
             sudo apt upgrade -y
-            bash build.sh -r
+            bash build.sh
       - uses: actions/upload-artifact@v3
         with:
-          name: depthai-ros
+          name: ${{ github.event.inputs.package }}
           path: artifacts/*
