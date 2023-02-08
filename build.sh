@@ -83,7 +83,7 @@ depthai_core() {
     if [ "${ROS_DISTRO}" = "kinetic" ] || [ "${ROS_DISTRO}" = "melodic" ] || [ "${codename}" = "buster" ]; then
         env BUILD_TESTING_ARG="-DOpenCV_DIR=/home/ubuntu/OpenCV4.2/lib/cmake/opencv4" dpkg-buildpackage -b -j"$(nproc)" -Zgzip
     else
-        dpkg-buildpackage -b -j"$(nproc)" -Zgzip
+        env DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -j"$(nproc)"
     fi
 
     echo -e "${GREEN}Install ${ros_pkg_name} deb ... ${NC}"
@@ -124,7 +124,7 @@ foxglove_msgs() {
     fi
 
     echo -e "${GREEN}Build ${ros_pkg_name} binary package ...${NC}"
-    dpkg-buildpackage -b -j"$(nproc)" -Zgzip
+    env DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -j"$(nproc)"
 
     echo -e "${GREEN}Install ${ros_pkg_name} deb ... ${NC}"
     deb_name="${ros_pkg_name}-${debian_inc}${codename}~${datetime}_$(dpkg --print-architecture).deb"
@@ -175,7 +175,7 @@ build_package() {
     fi
 
     echo -e "${GREEN}Build ${ros_pkg_name} binary package ...${NC}"
-    dpkg-buildpackage -b -j"$(nproc)" -Zgzip
+    env DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -j"$(nproc)"
 
     echo -e "${GREEN}Install ${ros_pkg_name} deb ... ${NC}"
     deb_name="${ros_pkg_name}-${debian_inc}${codename}~${datetime}_$(dpkg --print-architecture).deb"
