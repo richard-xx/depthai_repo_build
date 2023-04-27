@@ -33,8 +33,8 @@ depthai_examples:
   ubuntu: [ros-${ROS_DISTRO}-depthai-examples]
   debian: [ros-${ROS_DISTRO}-depthai-examples]
 depthai_descriptions:
-  ubuntu: [ros-${ROS_DISTRO}-depthai-description]
-  debian: [ros-${ROS_DISTRO}-depthai-description]
+  ubuntu: [ros-${ROS_DISTRO}-depthai-descriptions]
+  debian: [ros-${ROS_DISTRO}-depthai-descriptions]
 depthai_filters:
   ubuntu: [ros-${ROS_DISTRO}-depthai-filters]
   debian: [ros-${ROS_DISTRO}-depthai-filters]
@@ -45,6 +45,8 @@ depthai_ros:
   ubuntu: [ros-${ROS_DISTRO}-depthai-ros]
   debian: [ros-${ROS_DISTRO}-depthai-ros]
 EOF
+
+#echo "yaml file:///${HOME}/.ros/rosdep.yaml" > /etc/ros/rosdep/sources.list.d/50-my-default.list
 
 rosdep update --include-eol-distros --rosdistro "${ROS_DISTRO}"
 
@@ -154,7 +156,7 @@ install_ros_pkg_deps() {
 
     if ! rosdep install --from-paths "${pkg_dir}" --ignore-src -r -y; then
         warn "Failed to install dependencies for ${pkg_dir}"
-        return 1
+        # return 1
     fi
 }
 
@@ -238,11 +240,8 @@ build_package() {
     else
       # 设置文件为可执行
       find "." -name "*.cfg" -type f -print0 | xargs -0 chmod +x --
-    fi
-    
-    if [[ -f "/tmp/depthai-ros/depthai_filters/cfg/wls.cfg" ]];then
       # 在文件首行添加 Python 解释器路径
-      sed -i "1i#!/usr/bin/env python" "/tmp/depthai-ros/depthai_filters/cfg/wls.cfg"
+      find "." -name "*.cfg" -type f -print0 | xargs -0 sed -i "1i#!/usr/bin/env python" --
     fi
 
     version="$(get_package_version)" # 获取包版本号
@@ -261,7 +260,7 @@ build_package() {
 
     package_source "${pkg_name}" # 打包源代码
 
-    if [[ "${package_type}" == "core" ]] && [[ "${ROS_DISTRO}" == "kinetic" ]] || [[ "${ROS_DISTRO}" == "melodic" ]] || [[ "${LINUX_DISTRO}" == "buster" ]]; then
+    if [[ "${package_type}" == "core" ]] && { [[ "${ROS_DISTRO}" == "kinetic" ]] || [[ "${ROS_DISTRO}" == "melodic" ]] || [[ "${LINUX_DISTRO}" == "buster" ]]; }; then
         info "Building ${ros_pkg_name} binary package with BUILD_TESTING_ARG and OpenCV_DIR..."                                                               # 提示正在使用BUILD_TESTING_ARG和OpenCV_DIR构建二进制包
         env DEB_BUILD_OPTIONS=noautodbgsym BUILD_TESTING_ARG="-DOpenCV_DIR=/home/ubuntu/OpenCV4.2/lib/cmake/opencv4" dpkg-buildpackage -b -us -uc -j"$(nproc)" -Zgzip # 使用BUILD_TESTING_ARG和OpenCV_DIR构建二进制包
     else
