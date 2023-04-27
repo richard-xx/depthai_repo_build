@@ -7,7 +7,7 @@ readonly DATETIME="${DATETIME:-$(date +%Y%m%d)}"                                
 readonly LINUX_DISTRO="$(lsb_release -cs)"                                              # 本地 Linux 发行版的代号
 readonly DEBIAN_INCREMENT="${DEBIAN_INCREMENT:-3}"                                      # Debian 的版本号增量
 readonly ARCHITECTURE="$(dpkg --print-architecture)"                                    # 本地机器的架构
-readonly DEBSUFFIX="${DEBIAN_INCREMENT}${LINUX_DISTRO}~${DATETIME}_${ARCHITECTURE}.deb" # Debian 包文件名后缀
+readonly DEB_SUFFIX="${DEBIAN_INCREMENT}${LINUX_DISTRO}~${DATETIME}_${ARCHITECTURE}.deb" # Debian 包文件名后缀
 
 readonly RED='\033[31m'    # 红色控制台输出
 readonly GREEN='\033[32m'  # 绿色控制台输出
@@ -46,7 +46,7 @@ depthai_ros:
   debian: [ros-${ROS_DISTRO}-depthai-ros]
 EOF
 
-rosdep update --include-eol-distros --rosdistro ${ROS_DISTRO}
+rosdep update --include-eol-distros --rosdistro "${ROS_DISTRO}"
 
 # 打印信息
 info() {
@@ -231,7 +231,7 @@ build_package() {
     install_ros_pkg_deps "${base_dir}/${dir_name}" # 安装ROS包依赖
     
     # 修改 .cfg 权限
-    chmod +x **/*.cfg || true
+    find "." -name "*.cfg" -print0 | xargs -0 chmod +x
     
     version="$(get_package_version)" # 获取包版本号
 
@@ -247,7 +247,7 @@ build_package() {
         cp "/workdir/postinst_depthai_core" "/tmp/depthai-core/debian/postinst" # 如果是core包，则复制后安装脚本
     fi
 
-    package_source ${pkg_name} # 打包源代码
+    package_source "${pkg_name}" # 打包源代码
 
     if [[ "${package_type}" == "core" ]] && [[ "${ROS_DISTRO}" == "kinetic" ]] || [[ "${ROS_DISTRO}" == "melodic" ]] || [[ "${LINUX_DISTRO}" == "buster" ]]; then
         info "Building ${ros_pkg_name} binary package with BUILD_TESTING_ARG and OpenCV_DIR..."                                                               # 提示正在使用BUILD_TESTING_ARG和OpenCV_DIR构建二进制包
@@ -257,7 +257,7 @@ build_package() {
         env DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage -b -us -uc -j"$(nproc)" -Zgzip # 构建二进制包
     fi
 
-    deb_name="${ros_pkg_name}-${DEBSUFFIX}"         # Debian包名称
+    deb_name="${ros_pkg_name}-${DEB_SUFFIX}"         # Debian包名称
     info "Installing Debian package ${deb_name}..." # 提示正在安装Debian包
     sudo apt install -qq -y "../${deb_name}"        # 安装Debian包
 
@@ -276,7 +276,7 @@ build_depthai_ros_package() {
     build_package ros depthai-ros depthai-ros                   # 构建depthai-ros包
 }
 
-if [ -z ${PACKAGE} ]; then
+if [ -z "${PACKAGE}" ]; then
     while getopts "cfra" arg; do
         case $arg in
         c)
@@ -286,7 +286,7 @@ if [ -z ${PACKAGE} ]; then
             build_package foxglove ros_foxglove_msgs foxglove-msgs # 构建ros_foxglove_msgs包
             ;;
         r | a)
-            if [ $arg = "a" ]; then
+            if [ "$arg" = "a" ]; then
                 build_package core depthai-core depthai                # 构建depthai-core包
                 build_package foxglove ros_foxglove_msgs foxglove-msgs # 构建ros_foxglove_msgs包
             fi
@@ -299,13 +299,13 @@ if [ -z ${PACKAGE} ]; then
         esac
     done
 else
-    if [ ${PACKAGE} = 'depthai' ]; then
+    if [ "${PACKAGE}" = 'depthai' ]; then
         build_package core depthai-core depthai # 构建depthai-core包
-    elif [ ${PACKAGE} = 'foxglove-msgs' ]; then
+    elif [ "${PACKAGE}" = 'foxglove-msgs' ]; then
         build_package foxglove ros_foxglove_msgs foxglove-msgs # 构建ros_foxglove_msgs包
-    elif [ ${PACKAGE} = 'depthai-ros' ]; then
+    elif [ "${PACKAGE}" = 'depthai-ros' ]; then
         build_depthai_ros_package # 构建depthai-ros相关的ROS包
-    elif [ ${PACKAGE} = 'all' ]; then
+    elif [ "${PACKAGE}" = 'all' ]; then
         build_package core depthai-core depthai                # 构建depthai-core包
         build_package foxglove ros_foxglove_msgs foxglove-msgs # 构建ros_foxglove_msgs包
         build_depthai_ros_package                              # 构建depthai-ros相关的ROS包
