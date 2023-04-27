@@ -32,6 +32,12 @@ foxglove_msgs:
 depthai_examples:
   ubuntu: [ros-${ROS_DISTRO}-depthai-examples]
   debian: [ros-${ROS_DISTRO}-depthai-examples]
+depthai_descriptions:
+  ubuntu: [ros-${ROS_DISTRO}-depthai-description]
+  debian: [ros-${ROS_DISTRO}-depthai-description]
+depthai_filters:
+  ubuntu: [ros-${ROS_DISTRO}-depthai-filters]
+  debian: [ros-${ROS_DISTRO}-depthai-filters]
 depthai_ros_driver:
   ubuntu: [ros-${ROS_DISTRO}-depthai-ros-driver]
   debian: [ros-${ROS_DISTRO}-depthai-ros-driver]
@@ -258,11 +264,13 @@ build_package() {
 
 # 构建depthai-ros相关的ROS包
 build_depthai_ros_package() {
-    build_package ros depthai_ros_msgs depthai-ros-msgs     # 构建depthai_ros_msgs包
-    build_package ros depthai_bridge depthai-bridge         # 构建depthai_bridge包
-    build_package ros depthai_examples depthai-examples     # 构建depthai_examples包
-    build_package ros depthai_ros_driver depthai-ros-driver # 构建depthai_ros_driver包
-    build_package ros depthai-ros depthai-ros               # 构建depthai-ros包
+    build_package ros depthai_ros_msgs depthai-ros-msgs         # 构建depthai_ros_msgs包
+    build_package ros depthai_bridge depthai-bridge             # 构建depthai_bridge包
+    build_package ros depthai_descriptions depthai-descriptions # 构建depthai_descriptions包
+    build_package ros depthai_filters depthai-filters           # 构建depthai_filters包
+    build_package ros depthai_examples depthai-examples         # 构建depthai_examples包
+    build_package ros depthai_ros_driver depthai-ros-driver     # 构建depthai_ros_driver包
+    build_package ros depthai-ros depthai-ros                   # 构建depthai-ros包
 }
 
 if [ -z ${PACKAGE} ]; then
