@@ -229,7 +229,10 @@ build_package() {
     remove_vcs_files # 移除VCS文件
 
     install_ros_pkg_deps "${base_dir}/${dir_name}" # 安装ROS包依赖
-
+    
+    # 修改 .cfg 权限
+    chmod +x **/*.cfg
+    
     version="$(get_package_version)" # 获取包版本号
 
     ros_pkg_name="ros-${ROS_DISTRO}-${pkg_name}_${version}" # ROS包名称
