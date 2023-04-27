@@ -239,6 +239,11 @@ build_package() {
       # 设置文件为可执行
       find "." -name "*.cfg" -type f -print0 | xargs -0 chmod +x --
     fi
+    
+    if [[ -f "/tmp/depthai-ros/depthai_filters/cfg/wls.cfg" ]];then
+      # 在文件首行添加 Python 解释器路径
+      sed -i "1i#!/usr/bin/env python" "/tmp/depthai-ros/depthai_filters/cfg/wls.cfg"
+    fi
 
     version="$(get_package_version)" # 获取包版本号
 
