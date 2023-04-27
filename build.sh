@@ -229,10 +229,17 @@ build_package() {
     remove_vcs_files # 移除VCS文件
 
     install_ros_pkg_deps "${base_dir}/${dir_name}" # 安装ROS包依赖
-    
-    # 修改 .cfg 权限
-    find "." -name "*.cfg" -print0 | xargs -0 chmod +x
-    
+
+    # 检查是否存在需要修改的文件
+    local file_count
+    file_count=$(find "." -name "*.cfg" | wc -l)
+    if [ "$file_count" -eq 0 ]; then
+      warn "目录 ${base_dir}/${dir_name} 中没有任何 .cfg 文件"
+    else
+      # 设置文件为可执行
+      find "." -name "*.cfg" -type f -print0 | xargs -0 chmod +x --
+    fi
+
     version="$(get_package_version)" # 获取包版本号
 
     ros_pkg_name="ros-${ROS_DISTRO}-${pkg_name}_${version}" # ROS包名称
