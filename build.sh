@@ -231,7 +231,7 @@ build_package() {
     install_ros_pkg_deps "${base_dir}/${dir_name}" # 安装ROS包依赖
     
     # 修改 .cfg 权限
-    chmod +x **/*.cfg
+    chmod +x **/*.cfg || true
     
     version="$(get_package_version)" # 获取包版本号
 
