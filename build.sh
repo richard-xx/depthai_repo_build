@@ -246,7 +246,7 @@ build_package() {
 
     package_source ${pkg_name} # 打包源代码
 
-    if [[ "${package_type}" == "core" ]] || [[ "${ROS_DISTRO}" == "kinetic" ]] || [[ "${ROS_DISTRO}" == "melodic" ]] || [[ "${LINUX_DISTRO}" == "buster" ]]; then
+    if [[ "${package_type}" == "core" ]] && [[ "${ROS_DISTRO}" == "kinetic" ]] || [[ "${ROS_DISTRO}" == "melodic" ]] || [[ "${LINUX_DISTRO}" == "buster" ]]; then
         info "Building ${ros_pkg_name} binary package with BUILD_TESTING_ARG and OpenCV_DIR..."                                                               # 提示正在使用BUILD_TESTING_ARG和OpenCV_DIR构建二进制包
         env DEB_BUILD_OPTIONS=noautodbgsym BUILD_TESTING_ARG="-DOpenCV_DIR=/home/ubuntu/OpenCV4.2/lib/cmake/opencv4" dpkg-buildpackage -b -us -uc -j"$(nproc)" -Zgzip # 使用BUILD_TESTING_ARG和OpenCV_DIR构建二进制包
     else
