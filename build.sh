@@ -232,7 +232,7 @@ build_package() {
 
     create_orig_tarball "${dir_name}" "${ros_pkg_name}" # 创建原始tarball
 
-    generate_debian_files # 生成Debian文件
+    generate_debian_files "${version}" # 生成Debian文件
 
     if [[ "${package_type}" == "core" ]]; then
         cp "/workdir/postinst_depthai_core" "/tmp/depthai-core/debian/postinst" # 如果是core包，则复制后安装脚本
