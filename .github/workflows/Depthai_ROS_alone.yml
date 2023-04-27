@@ -38,7 +38,7 @@ jobs:
       matrix:
         platform: [linux/amd64]
         image:
-          - noetic_depthai_buster
+          # - noetic_depthai_buster
           - humble_depthai_jammy
           - galactic_depthai_focal
           - foxy_depthai_focal
@@ -84,7 +84,7 @@ jobs:
       matrix:
         platform: [linux/arm64]
         image:
-          - noetic_depthai_buster
+          # - noetic_depthai_buster
           - humble_depthai_jammy
           - galactic_depthai_focal
           - foxy_depthai_focal
