@@ -70,6 +70,12 @@ debug() {
     fi
 }
 
+# 打印错误信息
+error() {
+    local message="$1"
+    printf "${RED}[ERROR] %s${NC}\n" "${message}" >&2
+}
+
 # 检查是否支持当前 Linux 发行版
 distro_supported() {
     [[ "${ARCHITECTURE}" == "amd64" ]] && [[ "${LINUX_DISTRO}" != "buster" ]]
@@ -82,11 +88,14 @@ clone_repo() {
     local repo_name="$(basename "${repo_url}" .git)"
 
     if [[ -d "${repo_name}" ]]; then
-        warn "Directory ${repo_name} already exists. Skipping clone."
-        return 0
+        warn "Directory ${repo_name} already exists. Pulling latest changes"
+        ( cd "${repo_name}" && git pull -f ) || ( rm -rf "${repo_name}" && git clone --recursive --depth 1 -b "${branch}" "${repo_url}" "${repo_name}" )
+        info "Repository ${repo_name} updated to local branch ${branch}"
+    else
+        info "Cloning repository ${repo_url} to directory ${repo_name}"
+        git clone --recursive --depth 1 -b "${branch}" "${repo_url}" "${repo_name}"
+        info "Repository ${repo_name} cloned to local branch ${branch}"
     fi
-
-    git clone --recursive --depth 1 -b "${branch}" "${repo_url}" "${repo_name}"
 }
 
 # 应用补丁
@@ -228,7 +237,7 @@ build_package() {
         apply_patch /workdir/xenial_package.diff # 如果是core包且ROS发行版是kinetic，则应用补丁
     fi
 
-    remove_vcs_files # 移除VCS文件
+    # remove_vcs_files # 移除VCS文件
 
     install_ros_pkg_deps "${base_dir}/${dir_name}" # 安装ROS包依赖
 
@@ -287,7 +296,29 @@ build_depthai_ros_package() {
     build_package ros depthai-ros depthai-ros                   # 构建depthai-ros包
 }
 
-if [ -z "${PACKAGE}" ]; then
+
+if [[ -n "${PACKAGE+x}" ]]; then   
+    case "${PACKAGE}" in
+        depthai)
+            build_package core depthai-core depthai # 构建depthai-core包
+            ;;
+        foxglove-msgs)
+            build_package foxglove ros_foxglove_msgs foxglove-msgs # 构建ros_foxglove_msgs包
+            ;;
+        depthai-ros)
+            build_depthai_ros_package # 构建depthai-ros相关的ROS包
+            ;;
+        all)
+            build_package core depthai-core depthai                # 构建depthai-core包
+            build_package foxglove ros_foxglove_msgs foxglove-msgs # 构建ros_foxglove_msgs包
+            build_depthai_ros_package                              # 构建depthai-ros相关的ROS包
+            ;;
+        *)
+            echo "Invalid package name: ${PACKAGE}" # 无效的包名
+            exit 1
+            ;;
+    esac
+else
     while getopts "cfra" arg; do
         case $arg in
         c)
@@ -309,18 +340,7 @@ if [ -z "${PACKAGE}" ]; then
             ;;
         esac
     done
-else
-    if [ "${PACKAGE}" = 'depthai' ]; then
-        build_package core depthai-core depthai # 构建depthai-core包
-    elif [ "${PACKAGE}" = 'foxglove-msgs' ]; then
-        build_package foxglove ros_foxglove_msgs foxglove-msgs # 构建ros_foxglove_msgs包
-    elif [ "${PACKAGE}" = 'depthai-ros' ]; then
-        build_depthai_ros_package # 构建depthai-ros相关的ROS包
-    elif [ "${PACKAGE}" = 'all' ]; then
-        build_package core depthai-core depthai                # 构建depthai-core包
-        build_package foxglove ros_foxglove_msgs foxglove-msgs # 构建ros_foxglove_msgs包
-        build_depthai_ros_package                              # 构建depthai-ros相关的ROS包
-    fi
+
 fi
 
 shift $((OPTIND - 1))

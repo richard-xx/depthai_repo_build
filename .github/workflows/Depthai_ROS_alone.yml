@@ -40,7 +40,7 @@ jobs:
         image:
           # - noetic_depthai_buster
           - humble_depthai_jammy
-          - galactic_depthai_focal
+          # - galactic_depthai_focal
           - foxy_depthai_focal
           - kinetic_depthai_xenial
           - melodic_depthai_bionic
@@ -86,7 +86,7 @@ jobs:
         image:
           # - noetic_depthai_buster
           - humble_depthai_jammy
-          - galactic_depthai_focal
+          # - galactic_depthai_focal
           - foxy_depthai_focal
           - kinetic_depthai_xenial
           - melodic_depthai_bionic
