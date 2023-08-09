@@ -58,12 +58,12 @@ jobs:
           shell: bash
           options: -v ${{ github.workspace }}:/workdir --platform ${{ matrix.platform }} -e DEBIAN_FRONTEND=noninteractive -e PACKAGE=${{ github.event.inputs.package }}
           run: |
+            sudo mkdir -p /usr/local/share/keyrings
             if [ $(lsb_release -c -s) != "buster" ]; then 
             curl -fsSL https://github.com/richard-xx/depthai_repo_build/raw/main/richard-deng-ubuntu-cmake.gpg | sudo tee /usr/local/share/keyrings/richard-deng-ubuntu-cmake.gpg > /dev/null
             echo "deb [signed-by=/usr/local/share/keyrings/richard-deng-ubuntu-cmake.gpg] https://ppa.launchpadcontent.net/richard-deng/cmake/ubuntu $(lsb_release -c -s) main" | sudo tee /etc/apt/sources.list.d/richard-deng-ubuntu-cmake.list
             fi
             mkdir -p /home/ubuntu/.hunter
-            sudo mkdir -p /usr/local/share/keyrings
             curl -fsSL https://richard-xx.github.io/ros-depthai-repo/PUBLIC.KEY | gpg --dearmor | sudo tee /usr/local/share/keyrings/ros-depthai-repo.gpg > /dev/null
             echo "deb [signed-by=/usr/local/share/keyrings/ros-depthai-repo.gpg] https://richard-xx.github.io/ros-depthai-repo $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros-depthai-repo.list
             sudo apt update
